@@ -5,11 +5,10 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
+    private static int[] cardPin = new int[4];
+    private static long[] cardNumber = new long[16];
 
     public static void main(String[] args) {
-
-        //long cardNumber = 4_000_004_938_320_895L;
-        //long cardPin = 1234;
 
         homePage();
 
@@ -47,25 +46,25 @@ public class Main {
         int randomCardPin = random.nextInt(10000);
         final int cardLength = 16;
 
-        long[] cardId = new long[cardLength];
-        cardId [0] = 4;
-        cardId [cardLength - 1] = randomChecksum;
+        //long[] cardNumber = new long[cardLength];
+        cardNumber[0] = 4;
+        cardNumber[cardLength - 1] = randomChecksum;
 
         String tempAccountId = Integer.toString(randomAccountId);
         for (int i = 6; i < cardLength - 1 ; i++) {
-            cardId[i] = tempAccountId.charAt(i - 6) - '0';
+            cardNumber[i] = tempAccountId.charAt(i - 6) - '0';
         }
 
         String tempCardPin = Integer.toString(randomCardPin);
-        int[] cardPin = new int[tempCardPin.length()];
+        //int[] cardPin = new int[tempCardPin.length()];
         for(int j = 0; j < tempCardPin.length(); j++) {
             cardPin[j] = tempCardPin.charAt(j) - '0';
         }
 
         System.out.println("Your card has been created");
         System.out.println("Your card number:");
-        for (long cardIdValue : cardId) {
-            System.out.print(cardIdValue);
+        for (long cardNumberValue : cardNumber) {
+            System.out.print(cardNumberValue);
         }
         System.out.println();
         System.out.println("Your card PIN:");
@@ -82,11 +81,20 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Enter your card number:");
-        long cardNumberEntered  = scanner.nextLong();
-        System.out.println("Enter your PIN:");
-        long cardPinEntered  = scanner.nextLong();
+        String stringCardNumberEntered  = scanner.next();
+        long[] cardNumberEntered = new long[cardNumber.length];
+        for(int i = 0; i < cardNumber.length; i++) {
+            cardNumberEntered[i]  = stringCardNumberEntered.charAt(i) - '0';
+        }
 
-        if (cardPinEntered == 1234 && cardNumberEntered == 4000004938320895L) {
+        System.out.println("Enter your PIN:");
+        String stringCardPinEntered  = scanner.next();
+        int[] cardPinEntered = new int[cardPin.length];
+        for(int j = 0; j < cardPin.length; j++) {
+            cardPinEntered[j]  = stringCardPinEntered.charAt(j) - '0';
+        }
+
+        if (Arrays.equals(cardPinEntered, cardPin) && Arrays.equals(cardNumberEntered, cardNumber)) {
             System.out.println("You have successfully logged in!");
             accountPage();
         } else {
