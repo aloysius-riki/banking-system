@@ -1,12 +1,11 @@
 package com.zjukamuriki;
-
 import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
-    private static int[] cardPin = new int[4];
-    private static long[] cardNumber = new long[16];
+    private static final int[] cardPin = new int[4];
+    private static final long[] cardNumber = new long[16];
 
     public static void main(String[] args) {
 
@@ -81,26 +80,33 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Enter your card number:");
-        String stringCardNumberEntered  = scanner.next();
-        long[] cardNumberEntered = new long[cardNumber.length];
-        for(int i = 0; i < cardNumber.length; i++) {
-            cardNumberEntered[i]  = stringCardNumberEntered.charAt(i) - '0';
+        try {
+            String stringCardNumberEntered  = scanner.next();
+            long[] cardNumberEntered = new long[cardNumber.length];
+            for(int i = 0; i < cardNumber.length; i++) {
+                cardNumberEntered[i]  = stringCardNumberEntered.charAt(i) - '0';
+            }
+
+            System.out.println("Enter your PIN:");
+            String stringCardPinEntered  = scanner.next();
+            int[] cardPinEntered = new int[cardPin.length];
+            for(int j = 0; j < cardPin.length; j++) {
+                cardPinEntered[j]  = stringCardPinEntered.charAt(j) - '0';
+            }
+
+            if (Arrays.equals(cardPinEntered, cardPin) && Arrays.equals(cardNumberEntered, cardNumber)) {
+                System.out.println("You have successfully logged in!");
+                accountPage();
+            } else {
+                System.out.println("Wrong card number or PIN!");
+                homePage();
+            }
+        } catch (StringIndexOutOfBoundsException e) {
+            System.out.println("Please enter a 16 digit card number and a 4 digit pin");
+        } catch (Exception e) {
+            System.out.println("Oops, something went wrong");
         }
 
-        System.out.println("Enter your PIN:");
-        String stringCardPinEntered  = scanner.next();
-        int[] cardPinEntered = new int[cardPin.length];
-        for(int j = 0; j < cardPin.length; j++) {
-            cardPinEntered[j]  = stringCardPinEntered.charAt(j) - '0';
-        }
-
-        if (Arrays.equals(cardPinEntered, cardPin) && Arrays.equals(cardNumberEntered, cardNumber)) {
-            System.out.println("You have successfully logged in!");
-            accountPage();
-        } else {
-            System.out.println("Wrong card number or PIN!");
-            homePage();
-        }
 
     }
 
