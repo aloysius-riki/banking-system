@@ -135,8 +135,6 @@ public class Main {
 
     }
 
-
-
     public static void accountPage() {
         Scanner scanner = new Scanner(System.in);
 
