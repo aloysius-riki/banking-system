@@ -79,7 +79,6 @@ public class Main {
 
         cardNumber[cardLength - 1] = checksum;
 
-
         String tempCardPin = Integer.toString(randomCardPin);
 
         for(int j = 0; j < tempCardPin.length(); j++) {
