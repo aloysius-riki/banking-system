@@ -41,21 +41,47 @@ public class Main {
 
         Random random = new Random();
         int randomAccountId = random.nextInt(1000000000);
-        int randomChecksum = random.nextInt(10);
         int randomCardPin = random.nextInt(10000);
         final int cardLength = 16;
 
         //long[] cardNumber = new long[cardLength];
         cardNumber[0] = 4;
-        cardNumber[cardLength - 1] = randomChecksum;
 
         String tempAccountId = Integer.toString(randomAccountId);
         for (int i = 6; i < cardLength - 1 ; i++) {
             cardNumber[i] = tempAccountId.charAt(i - 6) - '0';
         }
 
+        //Generate checksum using Luhn algorithm
+        long[] controlNumberArray = new long[cardNumber.length-1];
+        long controlNumber = 0;
+        long checksum = 0;
+
+        for (int i = 0; i < controlNumberArray.length; i++) {
+            controlNumberArray[i] = cardNumber[i];
+        }
+
+        for (int i = 0; i < controlNumberArray.length; i++) {
+            if ((i+1) % 2 != 0) {
+                controlNumberArray[i] = controlNumberArray[i] * 2;
+            }
+            if (controlNumberArray[i] > 9){
+                controlNumberArray[i] = controlNumberArray[i] -9;
+            }
+            controlNumber = controlNumber + controlNumberArray[i];
+        }
+
+        if (controlNumber % 10 == 0) {
+            checksum = 0;
+        } else {
+            checksum = 10 - (controlNumber % 10);
+        }
+
+        cardNumber[cardLength - 1] = checksum;
+
+
         String tempCardPin = Integer.toString(randomCardPin);
-        //int[] cardPin = new int[tempCardPin.length()];
+
         for(int j = 0; j < tempCardPin.length(); j++) {
             cardPin[j] = tempCardPin.charAt(j) - '0';
         }
