@@ -1,19 +1,16 @@
 package com.zjukamuriki;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
-    private static final int[] cardPin = new int[4];
-    private static final long[] cardNumber = new long[16];
 
     public static void main(String[] args) {
-
-        homePage();
+        Account account = new Account();
+        homePage(account);
 
     }
 
-    public static void homePage() {
+    public static void homePage(Account account) {
 
         Scanner scanner = new Scanner(System.in);
 
@@ -24,11 +21,11 @@ public class Main {
         int menuItem = scanner.nextInt();
 
         if (menuItem == 1) {
-            createAccount();
+            createAccount(account);
         }
 
         if (menuItem == 2) {
-            loginToAccount();
+            loginToAccount(account);
         }
 
         if (menuItem == 0) {
@@ -37,28 +34,24 @@ public class Main {
 
     }
 
-    public static void createAccount() {
+    public static void createAccount(Account account) {
 
         Random random = new Random();
         int randomAccountId = random.nextInt(1000000000);
-        int randomCardPin = random.nextInt(10000);
-        final int cardLength = 16;
+        int cardPin = random.nextInt(10000);
 
-        //long[] cardNumber = new long[cardLength];
-        cardNumber[0] = 4;
+        String cardNumber = "40000" + randomAccountId;
 
-        String tempAccountId = Integer.toString(randomAccountId);
-        for (int i = 6; i < cardLength - 1 ; i++) {
-            cardNumber[i] = tempAccountId.charAt(i - 6) - '0';
-        }
+
 
         //Generate checksum using Luhn algorithm
-        long[] controlNumberArray = new long[cardNumber.length-1];
+        long[] controlNumberArray = new long[cardNumber.length()-1];
         long controlNumber = 0;
-        long checksum = 0;
+        long checksum;
+
 
         for (int i = 0; i < controlNumberArray.length; i++) {
-            controlNumberArray[i] = cardNumber[i];
+            controlNumberArray[i] = cardNumber.charAt(i);
         }
 
         for (int i = 0; i < controlNumberArray.length; i++) {
@@ -77,54 +70,44 @@ public class Main {
             checksum = 10 - (controlNumber % 10);
         }
 
-        cardNumber[cardLength - 1] = checksum;
+        cardNumber = cardNumber + checksum;
 
-        String tempCardPin = Integer.toString(randomCardPin);
 
-        for(int j = 0; j < tempCardPin.length(); j++) {
-            cardPin[j] = tempCardPin.charAt(j) - '0';
-        }
+        account.setAccountNumber(cardNumber);
+        account.setAccountPin(cardPin);
+        account.setBalance(0);
+
 
         System.out.println("Your card has been created");
         System.out.println("Your card number:");
-        for (long cardNumberValue : cardNumber) {
-            System.out.print(cardNumberValue);
-        }
+        System.out.println(account.getAccountNumber());
         System.out.println();
         System.out.println("Your card PIN:");
-        for (long cardPinValue : cardPin) {
-            System.out.print(cardPinValue);
-        }
+        System.out.println(account.getAccountPin());
         System.out.println();
 
 
-        homePage();
+        homePage(account);
     }
 
-    public static void loginToAccount() {
+    public static void loginToAccount(Account account) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Enter your card number:");
         try {
-            String stringCardNumberEntered  = scanner.next();
-            long[] cardNumberEntered = new long[cardNumber.length];
-            for(int i = 0; i < cardNumber.length; i++) {
-                cardNumberEntered[i]  = stringCardNumberEntered.charAt(i) - '0';
-            }
-
+            System.out.println("Enter your card number:");
+            String cardNumberEntered  = scanner.next();
             System.out.println("Enter your PIN:");
-            String stringCardPinEntered  = scanner.next();
-            int[] cardPinEntered = new int[cardPin.length];
-            for(int j = 0; j < cardPin.length; j++) {
-                cardPinEntered[j]  = stringCardPinEntered.charAt(j) - '0';
-            }
+            int PinEntered  = scanner.nextInt();
 
-            if (Arrays.equals(cardPinEntered, cardPin) && Arrays.equals(cardNumberEntered, cardNumber)) {
+
+            if ((PinEntered == account.getAccountPin()) && (cardNumberEntered.equals(account.getAccountNumber()))) {
                 System.out.println("You have successfully logged in!");
-                accountPage();
+                accountPage(account);
             } else {
-                System.out.println("Wrong card number or PIN!");
-                homePage();
+                System.out.println("Wrong card number or PIN!" +
+                        PinEntered + " " + account.getAccountPin() + " " +
+                        cardNumberEntered + " " + account.getAccountNumber() );
+                homePage(account);
             }
         } catch (StringIndexOutOfBoundsException e) {
             System.out.println("Please enter a 16 digit card number and a 4 digit pin");
@@ -135,7 +118,7 @@ public class Main {
 
     }
 
-    public static void accountPage() {
+    public static void accountPage(Account account) {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("1. Balance");
@@ -144,11 +127,11 @@ public class Main {
         int menuItem = scanner.nextInt();
 
         if (menuItem == 1) {
-            accountBalance();
+            accountBalance(account);
         }
 
         if (menuItem == 2) {
-            logOut();
+            logOut(account);
         }
 
         if (menuItem == 0) {
@@ -156,20 +139,50 @@ public class Main {
         }
     }
 
-    public static void logOut() {
+    public static void logOut(Account account) {
         System.out.println("You have successfully logged out!");
-        homePage();
+        homePage(account);
 
     }
 
-    public static void accountBalance() {
-        //get value from array
-        System.out.println("Balance : 0");
-        accountPage();
+    public static void accountBalance(Account account) {
+        System.out.println(account.getBalance());
+        accountPage(account);
     }
 
     public static void exitProgram() {
         System.out.println("Bye!");
     }
 
+}
+
+class Account {
+
+    private String accountNumber;
+    private int accountPin;
+    private long balance;
+
+    public long getBalance() {
+        return balance;
+    }
+
+    public void setBalance(long balance) {
+        this.balance = balance;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public int getAccountPin() {
+        return accountPin;
+    }
+
+    public void setAccountPin(int accountPin) {
+        this.accountPin = accountPin;
+    }
 }
