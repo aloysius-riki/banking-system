@@ -37,31 +37,40 @@ public class Main {
     public static void createAccount(Account account) {
 
         Random random = new Random();
-        int randomAccountId = random.nextInt(1000000000);
-        int cardPin = random.nextInt(10000);
+        int randomAccountIdInt = random.nextInt(1000000000);
+        String randomAccountId = String.format("%09d", randomAccountIdInt);
 
-        String cardNumber = "40000" + randomAccountId;
+        int cardPinInt = random.nextInt(10000);
+        String cardPin = String.format("%04d", cardPinInt);
+
+        String cardNumber = "400000" + randomAccountId;
 
 
 
         //Generate checksum using Luhn algorithm
-        long[] controlNumberArray = new long[cardNumber.length()-1];
+        int [] controlNumberArray = new int [cardNumber.length()];
         long controlNumber = 0;
         long checksum;
 
-
         for (int i = 0; i < controlNumberArray.length; i++) {
-            controlNumberArray[i] = cardNumber.charAt(i);
+            controlNumberArray[i] = Integer.parseInt(String.valueOf(cardNumber.charAt(i)));
+
         }
 
         for (int i = 0; i < controlNumberArray.length; i++) {
             if ((i+1) % 2 != 0) {
                 controlNumberArray[i] = controlNumberArray[i] * 2;
             }
+        }
+
+        for (int i = 0; i < controlNumberArray.length; i++) {
             if (controlNumberArray[i] > 9){
                 controlNumberArray[i] = controlNumberArray[i] -9;
             }
-            controlNumber = controlNumber + controlNumberArray[i];
+        }
+
+        for (int j : controlNumberArray) {
+            controlNumber = controlNumber + j;
         }
 
         if (controlNumber % 10 == 0) {
@@ -81,7 +90,6 @@ public class Main {
         System.out.println("Your card has been created");
         System.out.println("Your card number:");
         System.out.println(account.getAccountNumber());
-        System.out.println();
         System.out.println("Your card PIN:");
         System.out.println(account.getAccountPin());
         System.out.println();
@@ -97,10 +105,10 @@ public class Main {
             System.out.println("Enter your card number:");
             String cardNumberEntered  = scanner.next();
             System.out.println("Enter your PIN:");
-            int PinEntered  = scanner.nextInt();
+            String PinEntered  = scanner.next();
 
 
-            if ((PinEntered == account.getAccountPin()) && (cardNumberEntered.equals(account.getAccountNumber()))) {
+            if ((PinEntered.equals(account.getAccountPin()) && cardNumberEntered.equals(account.getAccountNumber()))) {
                 System.out.println("You have successfully logged in!");
                 accountPage(account);
             } else {
@@ -159,7 +167,7 @@ public class Main {
 class Account {
 
     private String accountNumber;
-    private int accountPin;
+    private String accountPin;
     private long balance;
 
     public long getBalance() {
@@ -178,11 +186,11 @@ class Account {
         this.accountNumber = accountNumber;
     }
 
-    public int getAccountPin() {
+    public String getAccountPin() {
         return accountPin;
     }
 
-    public void setAccountPin(int accountPin) {
+    public void setAccountPin(String accountPin) {
         this.accountPin = accountPin;
     }
 }
