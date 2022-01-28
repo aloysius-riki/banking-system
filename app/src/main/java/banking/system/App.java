@@ -1,31 +1,86 @@
-package com.zjukamuriki;
+package banking.system;
+
+import org.sqlite.SQLiteDataSource;
+
+import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Random;
 import java.util.Scanner;
 
-public class Main {
+public class App {
 
     public static void main(String[] args) {
+        String filename = "card.s3db";
+        String url = "jdbc:sqlite:"+ filename;
+        createDataBase(filename);
+
+        SQLiteDataSource dataSource = new SQLiteDataSource();
+        dataSource.setUrl(url);
+        createTable(dataSource);
+
         Account account = new Account();
-        homePage(account);
+        homePage(account, dataSource);
+
 
     }
 
-    public static void homePage(Account account) {
+    public static void createDataBase(String filename) {
 
-        Scanner scanner = new Scanner(System.in);
+        try {
+            File fileName = new File(filename);
+            if (fileName.createNewFile()) {
+                System.out.println("File created: " + fileName.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    public static void createTable(SQLiteDataSource dataSource){
+
+        try (Connection con = dataSource.getConnection()) {
+            // Statement creation
+            try (Statement statement = con.createStatement()) {
+                // Statement execution
+                statement.executeUpdate("CREATE TABLE IF NOT EXISTS card(" +
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                        "number TEXT NOT NULL," +
+                        "pin TEXT NOT NULL," +
+                        "balance INTEGER DEFAULT 0)");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    public static void homePage(Account account, SQLiteDataSource dataSource) {
+
 
         System.out.println("1. Create an account");
         System.out.println("2. Log into account");
         System.out.println("0. Exit");
 
-        int menuItem = scanner.nextInt();
+        Scanner keyboard = new Scanner(System.in);
+
+        String nextIntString = keyboard.nextLine(); //get the number as a single line
+        int menuItem = Integer.parseInt(nextIntString);
 
         if (menuItem == 1) {
-            createAccount(account);
+            createAccount(account, dataSource);
         }
 
         if (menuItem == 2) {
-            loginToAccount(account);
+            loginToAccount(account, dataSource);
         }
 
         if (menuItem == 0) {
@@ -34,7 +89,7 @@ public class Main {
 
     }
 
-    public static void createAccount(Account account) {
+    public static void createAccount(Account account, SQLiteDataSource dataSource) {
 
         Random random = new Random();
         int randomAccountIdInt = random.nextInt(1000000000);
@@ -86,6 +141,23 @@ public class Main {
         account.setAccountPin(cardPin);
         account.setBalance(0);
 
+        //save to DB
+        try (Connection con = dataSource.getConnection()) {
+            // Statement creation
+            try (Statement statement = con.createStatement()) {
+                // Statement execution
+                statement.executeUpdate("INSERT INTO card (number, pin, balance )" +
+                        "VALUES(" +
+                        "'" + account.getAccountNumber() + "'," +
+                        "'" + account.getAccountPin() + "'," +
+                        "'" + account.getBalance() + "')");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
 
         System.out.println("Your card has been created");
         System.out.println("Your card number:");
@@ -95,10 +167,10 @@ public class Main {
         System.out.println();
 
 
-        homePage(account);
+        homePage(account, dataSource);
     }
 
-    public static void loginToAccount(Account account) {
+    public static void loginToAccount(Account account, SQLiteDataSource dataSource) {
         Scanner scanner = new Scanner(System.in);
 
         try {
@@ -110,12 +182,12 @@ public class Main {
 
             if ((PinEntered.equals(account.getAccountPin()) && cardNumberEntered.equals(account.getAccountNumber()))) {
                 System.out.println("You have successfully logged in!");
-                accountPage(account);
+                accountPage(account, dataSource);
             } else {
                 System.out.println("Wrong card number or PIN!" +
                         PinEntered + " " + account.getAccountPin() + " " +
                         cardNumberEntered + " " + account.getAccountNumber() );
-                homePage(account);
+                homePage(account, dataSource);
             }
         } catch (StringIndexOutOfBoundsException e) {
             System.out.println("Please enter a 16 digit card number and a 4 digit pin");
@@ -126,7 +198,7 @@ public class Main {
 
     }
 
-    public static void accountPage(Account account) {
+    public static void accountPage(Account account, SQLiteDataSource dataSource) {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("1. Balance");
@@ -135,11 +207,11 @@ public class Main {
         int menuItem = scanner.nextInt();
 
         if (menuItem == 1) {
-            accountBalance(account);
+            accountBalance(account, dataSource);
         }
 
         if (menuItem == 2) {
-            logOut(account);
+            logOut(account, dataSource);
         }
 
         if (menuItem == 0) {
@@ -147,15 +219,15 @@ public class Main {
         }
     }
 
-    public static void logOut(Account account) {
+    public static void logOut(Account account, SQLiteDataSource dataSource) {
         System.out.println("You have successfully logged out!");
-        homePage(account);
+        homePage(account, dataSource);
 
     }
 
-    public static void accountBalance(Account account) {
+    public static void accountBalance(Account account, SQLiteDataSource dataSource) {
         System.out.println(account.getBalance());
-        accountPage(account);
+        accountPage(account, dataSource);
     }
 
     public static void exitProgram() {
